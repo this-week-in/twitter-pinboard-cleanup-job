@@ -3,6 +3,7 @@ package com.joshlong.twitter.organizer
 import com.joshlong.twitter.TwitterPinboardOrganizerProperties
 import com.joshlong.twitter.api.BearerTokenInterceptor
 import com.joshlong.twitter.api.SimpleTwitterClient
+import com.joshlong.twitter.api.Tweet
 import com.joshlong.twitter.api.TwitterClient
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
+import pinboard.Bookmark
 import pinboard.PinboardClient
 import java.util.*
 
@@ -58,24 +60,30 @@ class TwitterOrganizer(
 					.time
 
 	override fun onApplicationEvent(event: ApplicationReadyEvent) {
-		if (true) return
+
+		data class TweetAndPin(val pin: Bookmark, val tweet: Tweet)
 
 		val now = Date()
 		val then = subtractDaysFrom(now)
 		this.pinboardClient
 				.getAllPosts(tag = this.tags, todt = now, fromdt = then)
 				.filter { it.description!!.trim() == "twitter.com" }
+				.map {
+					val url = it.href!!
+					var found = false
+					val idStr = url.split("/status/")[1].filter {
+						if (it == '?') {
+							found = true
+						}
+						!found && Character.isDigit(it)
+					}
+					val id = java.lang.Long.parseLong(idStr)
+					val tweet = twitterClient.getTweet(id)
+					TweetAndPin(it, tweet!!)
+				}
 				.forEach {
-					println("=".repeat(100))
-					println(it.time)
-					println("-".repeat(100))
-					println(it.extended)
-					println("-".repeat(100))
-					println(it.description)
-					println("-".repeat(100))
-					println(it.meta)
-					println("-".repeat(100))
-					println(it.href)
+					//todo update the relevant pinboard entry!
+					println("tweet's are $it")
 				}
 	}
 }
