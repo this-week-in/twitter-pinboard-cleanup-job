@@ -16,7 +16,8 @@ import pinboard.PinboardClient
 import java.util.*
 
 /**
- * The goal of this program is to take a pinboard item that was saved and has the description.
+ * The goal of this program is to take a Pinboard
+ * item that was saved and has the description.
  */
 @Configuration
 class OrganizerConfiguration(private val twitterOrganizerProperties: TwitterPinboardOrganizerProperties) {
@@ -39,10 +40,6 @@ class TwitterOrganizer(
 		private val twitterClient: TwitterClient,
 		private val pinboardClient: PinboardClient) :
 		ApplicationListener<ApplicationReadyEvent> {
-
-	private fun getFullTweetDescription() {
-
-	}
 
 	private val tags = arrayOf("twis")
 

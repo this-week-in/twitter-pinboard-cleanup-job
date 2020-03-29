@@ -32,7 +32,6 @@ open class SimpleTwitterClient(private val restTemplate: RestTemplate) : Twitter
 
 	private val formatter = SimpleDateFormat(formatterString)
 
-
 	override fun getUserTimeline(username: String, sinceId: Long): List<Tweet> =
 			parseJson(tweetProducer(username, sinceId))
 

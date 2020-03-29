@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-APP_NAME=twitter-ingest-job
+APP_NAME=twitter-pinboard-cleanup-job
 JOB_NAME=${APP_NAME}
 SCHEDULER_SERVICE_NAME=scheduler-joshlong
 REDIS_NAME=redis-cache
