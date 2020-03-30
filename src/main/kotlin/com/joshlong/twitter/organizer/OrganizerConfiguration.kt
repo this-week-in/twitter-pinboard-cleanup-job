@@ -75,8 +75,7 @@ class TwitterOrganizer(
 						}
 						!found && Character.isDigit(it)
 					}
-					val id = java.lang.Long.parseLong(idStr)
-					mapOf(tweetKey to id, bookmarkKey to it)
+					mapOf(tweetKey to java.lang.Long.parseLong(idStr), bookmarkKey to it)
 				}
 				.parallelStream()
 				.forEach {
@@ -95,7 +94,6 @@ class TwitterOrganizer(
 								toread = bookmark.toread
 						)
 						println("updated the bookmark ${bookmark.href} to ${tweet.id} and ${tweet.text}")
-
 					}
 					else {
 						println( "the tweet was null")

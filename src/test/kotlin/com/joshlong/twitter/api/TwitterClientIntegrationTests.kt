@@ -4,6 +4,9 @@ import org.junit.Assert
 import org.junit.Test
 import org.junit.jupiter.api.Disabled
 import org.springframework.web.client.RestTemplate
+import java.util.stream.Collectors
+import kotlin.streams.asSequence
+import kotlin.streams.asStream
 
 @Disabled
 class TwitterClientIntegrationTests {
@@ -32,13 +35,35 @@ class TwitterClientIntegrationTests {
 
 	@Test
 	fun `should be able to get a single Tweet`() {
-		val tweet = this.twitterClient.getTweet(1242355542020030466L)!!
+
+		fun normalizeText(txt: String) =
+				txt
+						.toLowerCase()
+						.chars()
+						.filter { Character.isAlphabetic(it) || Character.isDigit(it) }
+						.mapToObj { it.toChar().toString() }
+						.asSequence()
+						.asStream()
+						.collect(Collectors.joining())
+						.trim()
+
+
+		val tweet = this.twitterClient.getTweet(1244080159726039041)!!
 		println("${tweet.id} ${tweet.text}")
-		Assert.assertTrue(tweet.text.contains("One friend of mine printed the documentation"))
+		val message =
+				"""
+			Alright, this SUCKS. @robdaemon  is one of the most brilliant and hardest working (and friendliest!) 
+			engineers I’ve ever met. PLEASE hire him, someone? He’s an engineering leader, a great manager, and one of the 
+			most well rounded, crafty and dependable engineers out there.
+		""".trimIndent()
+		println("tweet text: ${normalizeText(tweet.text)}")
+		println("message text: ${normalizeText(message)}")
+		Assert.assertTrue(normalizeText(tweet.text).contains(normalizeText(message)))
+
 		Assert.assertTrue(tweet.entities.userMentions.isNotEmpty())
 		Assert.assertTrue(tweet.entities.urls.isNotEmpty())
-		Assert.assertTrue(tweet.inReplyToStatusId != null)
-		Assert.assertTrue(tweet.user.screenName == "vlad_mihalcea")
+		Assert.assertTrue(tweet.inReplyToStatusId == null)
+		Assert.assertTrue(tweet.user.screenName == "starbuxman")
 	}
 
 }

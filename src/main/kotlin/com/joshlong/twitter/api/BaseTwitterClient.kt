@@ -19,21 +19,18 @@ import java.util.*
  */
 open class SimpleTwitterClient(private val restTemplate: RestTemplate) : TwitterClient {
 
-	private fun tweetProducer(username: String, sinceId: Long): String {
-		val userTimelineUrl = "https://api.twitter.com/1.1/statuses/user_timeline.json"
-		val sinceIdParam = if (sinceId > 0) "&since_id=${sinceId}" else ""
-		val uri = "${userTimelineUrl}?include_rts=1&count=200&screen_name=${username}${sinceIdParam}"
-		return restTemplate.getForEntity(uri, String::class.java).body!!
-	}
-
 	private val log = LogFactory.getLog(SimpleTwitterClient::class.java)
 	private val formatterString = "EEE MMM d HH:mm:ss ZZ yyyy"
 	private val objectMapper = ObjectMapper()
 
 	private val formatter = SimpleDateFormat(formatterString)
 
-	override fun getUserTimeline(username: String, sinceId: Long): List<Tweet> =
-			parseJson(tweetProducer(username, sinceId))
+	override fun getUserTimeline(username: String, sinceId: Long): List<Tweet> {
+		val userTimelineUrl = "https://api.twitter.com/1.1/statuses/user_timeline.json"
+		val sinceIdParam = if (sinceId > 0) "&since_id=${sinceId}" else ""
+		val uri = "${userTimelineUrl}?include_rts=1&tweet_mode=extended&count=200&screen_name=${username}${sinceIdParam}"
+		return parseJson(restTemplate.getForEntity(uri, String::class.java).body!!)
+	}
 
 	// todo incorporate the rate limiter insight when returning requests.
 	//  \for now the trick is to only run the SI poller every 15 minutes,
@@ -82,13 +79,14 @@ open class SimpleTwitterClient(private val restTemplate: RestTemplate) : Twitter
 	}
 
 	override fun getTweet(tweetId: Long): Tweet? {
-		val tweetUrl = "https://api.twitter.com/1.1/statuses/show.json?id={id}"
+		val tweetUrl = "https://api.twitter.com/1.1/statuses/show.json?id={id}&tweet_mode=extended"
 		val body = restTemplate.getForEntity(tweetUrl, String::class.java, tweetId).body!!
 		val tree = objectMapper.readTree(body)
 		return buildTweet(tree)
 	}
 
 	private fun buildTweet(tweetNode: JsonNode): Tweet {
+
 		val createdAt: Date =
 				if (tweetNode.has("created_at")) {
 					val textValue = tweetNode["created_at"].textValue()
@@ -108,7 +106,7 @@ open class SimpleTwitterClient(private val restTemplate: RestTemplate) : Twitter
 		return Tweet(
 				createdAt,
 				java.lang.Long.parseLong(tweetNode["id_str"].textValue()),
-				tweetNode["text"].textValue(),
+				tweetNode["full_text"].textValue(),
 				Boolean.parseBoolean(tweetNode["truncated"].textValue()),
 				tweetNode["in_reply_to_status_id_str"].textValue(),
 				buildEntities(tweetNode["entities"]),
