@@ -8,6 +8,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import pinboard.Bookmark
@@ -40,6 +41,7 @@ class OrganizerConfiguration(private val twitterOrganizerProperties: TwitterPinb
 
 @Component
 class TwitterOrganizer(
+		private val jdbcTemplate: JdbcTemplate,
 		private val twitterClient: TwitterClient,
 		private val pinboardClient: PinboardClient) :
 		ApplicationListener<ApplicationReadyEvent> {
@@ -102,8 +104,9 @@ class TwitterOrganizer(
 	override fun onApplicationEvent(event: ApplicationReadyEvent) {
 		val stepInDays: Int = 10
 		val begin = LocalDate.of(2018, 1, 1)
+		val tags: List<String> = this.jdbcTemplate.query("select * from twitter_pinboard_tags") { rs, _ -> rs.getString("tag_name") }
 		forEachNDaysBetween(begin, LocalDate.now(), stepInDays) { currentDate ->
-			arrayOf("trump", "coronavirus", "twis").forEach { tag ->
+			tags.forEach { tag ->
 				enrichBookmarksFor(tag, dateFromLocalDate(currentDate), dateFromLocalDate(currentDate.plusDays(stepInDays.toLong())))
 			}
 		}
