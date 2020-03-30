@@ -3,6 +3,7 @@ package com.joshlong.twitter.api
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.commons.logging.LogFactory
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import java.lang.Boolean
 import java.net.URL
@@ -18,6 +19,7 @@ import java.util.*
  * @see <a href="https://developer.twitter.com/en/docs/tweets/timelines/com.joshlong.twitter.api-reference/get-statuses-user_timeline">the API for a user's timeline</a>
  */
 open class SimpleTwitterClient(private val restTemplate: RestTemplate) : TwitterClient {
+
 
 	private val log = LogFactory.getLog(SimpleTwitterClient::class.java)
 	private val formatterString = "EEE MMM d HH:mm:ss ZZ yyyy"
@@ -78,12 +80,21 @@ open class SimpleTwitterClient(private val restTemplate: RestTemplate) : Twitter
 		if (log.isDebugEnabled) log.debug(msg)
 	}
 
-	override fun getTweet(tweetId: Long): Tweet? {
-		val tweetUrl = "https://api.twitter.com/1.1/statuses/show.json?id={id}&tweet_mode=extended"
-		val body = restTemplate.getForEntity(tweetUrl, String::class.java, tweetId).body!!
-		val tree = objectMapper.readTree(body)
-		return buildTweet(tree)
-	}
+	override fun getTweet(tweetId: Long): Tweet? =
+			try {
+				restTemplate
+						.getForEntity("https://api.twitter.com/1.1/statuses/show.json?id={id}&tweet_mode=extended", String::class.java, tweetId)
+						.let {
+							if (it.statusCode.is2xxSuccessful) {
+								return it.body!!.let { buildTweet(objectMapper.readTree(it)) }
+							} else {
+								null
+							}
+						}
+			} catch (ex: HttpClientErrorException.NotFound) {
+				log.error(ex)
+				null
+			}
 
 	private fun buildTweet(tweetNode: JsonNode): Tweet {
 

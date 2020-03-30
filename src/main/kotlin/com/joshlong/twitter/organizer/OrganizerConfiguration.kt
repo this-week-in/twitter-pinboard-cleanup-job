@@ -12,7 +12,11 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import pinboard.Bookmark
 import pinboard.PinboardClient
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.*
+import java.util.concurrent.atomic.AtomicReference
+
 
 /**
  * The goal of this program is to take a Pinboard
@@ -40,28 +44,14 @@ class TwitterOrganizer(
 		private val pinboardClient: PinboardClient) :
 		ApplicationListener<ApplicationReadyEvent> {
 
-	private fun subtractDaysFrom(numberOfDays: Int, d: Date) =
-			GregorianCalendar
-					.getInstance()
-					.apply {
-						val other = GregorianCalendar
-								.getInstance()
-								.apply {
-									time = d
-								}
-						set(Calendar.DAY_OF_YEAR, other.get(Calendar.DAY_OF_YEAR) - numberOfDays)
-					}
-					.time
-
-
 	private fun enrichBookmarksFor(tag: String, starting: Date, until: Date) {
+		println("Enriching the bookmarks for the tag $tag from date $starting until $until ")
 		val tweetKey = "tweet"
 		val bookmarkKey = "bookmark"
-//		val now = Date()
-//		val then = subtractDaysFrom(21, now)
 		this.pinboardClient
 				.getAllPosts(tag = arrayOf(tag), todt = until, fromdt = starting)
 				.filter { it.description!!.trim() == "twitter.com" }
+				.filter { it.href!!.contains("/status/") }
 				.map {
 					val url = it.href!!
 					var found = false
@@ -96,13 +86,32 @@ class TwitterOrganizer(
 				}
 	}
 
-	override fun onApplicationEvent(event: ApplicationReadyEvent) {
-
-		val currentYear: Int = GregorianCalendar.getInstance().get(Calendar.YEAR)
-		val startYear: Int = 2016
-		val days: Int = (currentYear - startYear) * 365
-		val tags = arrayOf("coronavirus", "twis", "trump")
-
-
+	private fun forEachNDaysBetween(begin: LocalDate, end: LocalDate, stepInDays: Int, handler: (date: LocalDate) -> Unit) {
+		val iterator = LocalDateIterator(begin, end)
+		var counter = 0
+		iterator.forEachRemaining {
+			if (counter % stepInDays == 0) {
+				handler(it)
+			}
+			counter += 1
+		}
 	}
+
+	private fun dateFromLocalDate(ld: LocalDate) = Date.from(ld.atStartOfDay(ZoneId.systemDefault()).toInstant())
+
+	override fun onApplicationEvent(event: ApplicationReadyEvent) {
+		val stepInDays: Int = 10
+		val begin = LocalDate.of(2016, 1, 1)
+		forEachNDaysBetween(begin, LocalDate.now(), stepInDays) { currentDate ->
+			arrayOf("trump", "coronavirus", "twis").forEach { tag ->
+				enrichBookmarksFor(tag, dateFromLocalDate(currentDate), dateFromLocalDate(currentDate.plusDays(stepInDays.toLong())))
+			}
+		}
+	}
+}
+
+open class LocalDateIterator(start: LocalDate, private val stop: LocalDate) : Iterator<LocalDate> {
+	private val current = AtomicReference(start.minusDays(1))
+	override fun hasNext(): Boolean = this.current.get().isBefore(this.stop)
+	override fun next(): LocalDate = this.current.updateAndGet { it.plusDays(1) }
 }
