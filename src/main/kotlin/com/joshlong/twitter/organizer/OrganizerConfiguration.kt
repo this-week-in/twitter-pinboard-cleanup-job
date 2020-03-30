@@ -3,7 +3,6 @@ package com.joshlong.twitter.organizer
 import com.joshlong.twitter.TwitterPinboardOrganizerProperties
 import com.joshlong.twitter.api.BearerTokenInterceptor
 import com.joshlong.twitter.api.SimpleTwitterClient
-import com.joshlong.twitter.api.Tweet
 import com.joshlong.twitter.api.TwitterClient
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
@@ -41,8 +40,6 @@ class TwitterOrganizer(
 		private val pinboardClient: PinboardClient) :
 		ApplicationListener<ApplicationReadyEvent> {
 
-	private val tags = arrayOf("twis")
-
 	private fun subtractDaysFrom(numberOfDays: Int, d: Date) =
 			GregorianCalendar
 					.getInstance()
@@ -56,15 +53,14 @@ class TwitterOrganizer(
 					}
 					.time
 
-	override fun onApplicationEvent(event: ApplicationReadyEvent) {
+
+	private fun enrichBookmarksFor(tag: String, starting: Date, until: Date) {
 		val tweetKey = "tweet"
 		val bookmarkKey = "bookmark"
-		//todo have some way for random services to contribute types of tweets to look after (eg, which tags should we look for)
-		//todo have something that goes back for 2 years in a while loop
-		val now = Date()
-		val then = subtractDaysFrom(14, now)
+//		val now = Date()
+//		val then = subtractDaysFrom(21, now)
 		this.pinboardClient
-				.getAllPosts(tag = this.tags, todt = now, fromdt = then)
+				.getAllPosts(tag = arrayOf(tag), todt = until, fromdt = starting)
 				.filter { it.description!!.trim() == "twitter.com" }
 				.map {
 					val url = it.href!!
@@ -79,7 +75,7 @@ class TwitterOrganizer(
 				}
 				.parallelStream()
 				.forEach {
-					println( "processing on ${Thread.currentThread().name}")
+					println("processing on ${Thread.currentThread().name}")
 					val bookmark = it[bookmarkKey] as Bookmark
 					val tweet = this.twitterClient.getTweet(it[tweetKey] as Long)
 					if (tweet != null) {
@@ -87,17 +83,26 @@ class TwitterOrganizer(
 						this.pinboardClient.updatePost(
 								url = bookmark.href!!,
 								description = tweet.text,
-								extended = bookmark.extended!!,
+								extended = tweet.text,
 								tags = bookmark.tags,
 								dt = bookmark.time!!,
 								shared = bookmark.shared,
 								toread = bookmark.toread
 						)
 						println("updated the bookmark ${bookmark.href} to ${tweet.id} and ${tweet.text}")
-					}
-					else {
-						println( "the tweet was null")
+					} else {
+						println("the tweet was null")
 					}
 				}
+	}
+
+	override fun onApplicationEvent(event: ApplicationReadyEvent) {
+
+		val currentYear: Int = GregorianCalendar.getInstance().get(Calendar.YEAR)
+		val startYear: Int = 2016
+		val days: Int = (currentYear - startYear) * 365
+		val tags = arrayOf("coronavirus", "twis", "trump")
+
+
 	}
 }
