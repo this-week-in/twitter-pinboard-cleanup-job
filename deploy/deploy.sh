@@ -5,7 +5,7 @@ JOB_NAME=${APP_NAME}
 SCHEDULER_SERVICE_NAME=scheduler-joshlong
 POSTGRESQL_SERVICE_NAME=twitter-organizer-db
 
-export PATH=$HOME/bin:$PATH
+#export PATH=$HOME/bin:$PATH
 
 cf d -f ${APP_NAME}
 cf push -b java_buildpack -u none --no-route --no-start -p target/${APP_NAME}.jar ${APP_NAME}

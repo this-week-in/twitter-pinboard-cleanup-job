@@ -5,6 +5,7 @@ import com.joshlong.twitter.TwitterPinboardOrganizerProperties
 import com.joshlong.twitter.api.BearerTokenInterceptor
 import com.joshlong.twitter.api.SimpleTwitterClient
 import com.joshlong.twitter.api.TwitterClient
+import org.apache.commons.logging.LogFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
@@ -46,8 +47,10 @@ class TwitterOrganizer(
 		private val pinboardClient: PinboardClient) :
 		ApplicationListener<ApplicationReadyEvent> {
 
+	private val log = LogFactory.getLog(javaClass)
+
 	private fun enrichBookmarksFor(tag: String, starting: Date, until: Date) {
-		println("Enriching the bookmarks for the tag $tag from date $starting until $until ")
+		log.info("Enriching the bookmarks for the tag $tag from date $starting until $until ")
 		val tweetKey = "tweet"
 		val bookmarkKey = "bookmark"
 		this.pinboardClient
@@ -67,11 +70,11 @@ class TwitterOrganizer(
 				}
 				.parallelStream()
 				.forEach {
-					println("processing on ${Thread.currentThread().name}")
+					log.info("processing on ${Thread.currentThread().name}")
 					val bookmark = it[bookmarkKey] as Bookmark
 					val tweet = this.twitterClient.getTweet(it[tweetKey] as Long)
 					if (tweet != null) {
-						println("updated the bookmark ${bookmark.href} to ${tweet.id} and ${tweet.text}")
+						log.info("updated the bookmark ${bookmark.href} to ${tweet.id} and ${tweet.text}")
 						this.pinboardClient.updatePost(
 								url = bookmark.href!!,
 								description = tweet.text,
@@ -81,9 +84,9 @@ class TwitterOrganizer(
 								shared = bookmark.shared,
 								toread = bookmark.toread
 						)
-						println("updated the bookmark ${bookmark.href} to ${tweet.id} and ${tweet.text}")
+						log.info("updated the bookmark ${bookmark.href} to ${tweet.id} and ${tweet.text}")
 					} else {
-						println("the tweet was null")
+						log.info("the tweet was null")
 					}
 				}
 	}
@@ -112,7 +115,7 @@ class TwitterOrganizer(
 	}
 }
 
-open class LocalDateIterator(start: LocalDate, private val stop: LocalDate) : Iterator<LocalDate> {
+class LocalDateIterator(start: LocalDate, private val stop: LocalDate) : Iterator<LocalDate> {
 	private val current = AtomicReference(start.minusDays(1))
 	override fun hasNext(): Boolean = this.current.get().isBefore(this.stop)
 	override fun next(): LocalDate = this.current.updateAndGet { it.plusDays(1) }

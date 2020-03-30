@@ -1,5 +1,6 @@
 package com.joshlong.twitter.api
 
+import org.apache.commons.logging.LogFactory
 import org.junit.Assert
 import org.junit.Test
 import org.junit.jupiter.api.Disabled
@@ -11,12 +12,12 @@ import kotlin.streams.asStream
 @Disabled
 class TwitterClientIntegrationTests {
 
+	private val log = LogFactory.getLog(javaClass)
 	private val authenticatedRestTemplate =
 			RestTemplate()
 					.apply {
 						val mutableMap = System.getenv()
 
-						mutableMap.forEach { (k, v) -> println("$k = ${v.length}") }
 
 						fun keyIfItExists(key: String): String = if (mutableMap.containsKey(key)) mutableMap[key]!!.trim() else ""
 						val apiKey = keyIfItExists("TWITTER_TWI_CLIENT_KEY")
@@ -32,7 +33,7 @@ class TwitterClientIntegrationTests {
 		val timeline = this.twitterClient.getUserTimeline(username)
 		Assert.assertTrue(timeline.isNotEmpty())
 		timeline.forEach {
-			println(it)
+			log.info(it)
 		}
 	}
 

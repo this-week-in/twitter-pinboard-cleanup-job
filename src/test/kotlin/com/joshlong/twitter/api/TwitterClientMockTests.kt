@@ -1,5 +1,6 @@
 package com.joshlong.twitter.api
 
+import org.apache.commons.logging.LogFactory
 import org.junit.Assert
 import org.junit.Ignore
 import org.junit.Test
@@ -18,6 +19,8 @@ class TwitterClientMockTests {
 			}
 		}
 	}
+
+	private val log = LogFactory.getLog(javaClass)
 	private val tweetsJsonFile = ClassPathResource("/tweets.json")
 	private val twitterClient = SimpleTwitterClient(RestTemplate())
 	private val username = "starbuxman"
@@ -25,7 +28,7 @@ class TwitterClientMockTests {
 
 	init {
 		this.timeline = this.twitterClient.getUserTimeline(this.username).apply {
-			forEach { println(it) }
+			forEach { log.info (it) }
 		}
 	}
 
