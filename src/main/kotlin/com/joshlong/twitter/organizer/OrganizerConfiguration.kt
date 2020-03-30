@@ -43,7 +43,7 @@ class TwitterOrganizer(
 
 	private val tags = arrayOf("twis")
 
-	private fun subtractDaysFrom(d: Date) =
+	private fun subtractDaysFrom(numberOfDays: Int, d: Date) =
 			GregorianCalendar
 					.getInstance()
 					.apply {
@@ -52,16 +52,16 @@ class TwitterOrganizer(
 								.apply {
 									time = d
 								}
-						set(Calendar.DAY_OF_YEAR, other.get(Calendar.DAY_OF_YEAR) - 7)
+						set(Calendar.DAY_OF_YEAR, other.get(Calendar.DAY_OF_YEAR) - numberOfDays)
 					}
 					.time
 
 	override fun onApplicationEvent(event: ApplicationReadyEvent) {
-
-		data class TweetAndPin(val pin: Bookmark, val tweet: Tweet)
-
+		val tweetKey = "tweet"
+		val bookmarkKey = "bookmark"
+		//todo have something that goes back for 2 years in a while loop
 		val now = Date()
-		val then = subtractDaysFrom(now)
+		val then = subtractDaysFrom(14, now)
 		this.pinboardClient
 				.getAllPosts(tag = this.tags, todt = now, fromdt = then)
 				.filter { it.description!!.trim() == "twitter.com" }
@@ -75,12 +75,30 @@ class TwitterOrganizer(
 						!found && Character.isDigit(it)
 					}
 					val id = java.lang.Long.parseLong(idStr)
-					val tweet = twitterClient.getTweet(id)
-					TweetAndPin(it, tweet!!)
+					mapOf(tweetKey to id, bookmarkKey to it)
 				}
+				.parallelStream()
 				.forEach {
-					//todo update the relevant pinboard entry!
-					println("tweet's are $it")
+					println( "processing on ${Thread.currentThread().name}")
+					val bookmark = it[bookmarkKey] as Bookmark
+					val tweet = this.twitterClient.getTweet(it[tweetKey] as Long)
+					if (tweet != null) {
+						println("updated the bookmark ${bookmark.href} to ${tweet.id} and ${tweet.text}")
+						this.pinboardClient.updatePost(
+								url = bookmark.href!!,
+								description = tweet.text,
+								extended = bookmark.extended!!,
+								tags = bookmark.tags,
+								dt = bookmark.time!!,
+								shared = bookmark.shared,
+								toread = bookmark.toread
+						)
+						println("updated the bookmark ${bookmark.href} to ${tweet.id} and ${tweet.text}")
+
+					}
+					else {
+						println( "the tweet was null")
+					}
 				}
 	}
 }

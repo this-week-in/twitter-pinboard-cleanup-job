@@ -19,9 +19,6 @@ class BearerTokenInterceptor(private val key: String, private val secret: String
 
 	private val accessTokenReference = AtomicReference<String>()
 	private val accessTokenTemplate = RestTemplate()
-
-	// todo figure out how rate limiting and timeouts interacts with this test.
-	//      the tokens should be refreshed more frequently than the lifecycle of this application.
 	private fun shouldRefreshToken() = this.accessTokenReference.get() == null
 
 	override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
