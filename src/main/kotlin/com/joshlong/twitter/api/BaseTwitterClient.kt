@@ -38,7 +38,7 @@ open class SimpleTwitterClient(private val restTemplate: RestTemplate) : Twitter
 	//  \for now the trick is to only run the SI poller every 15 minutes,
 	//  \which is the rate limiter window time anyway
 
-/*	private fun getRateLimiterStatusForUserTimeline() =
+/* private fun getRateLimiterStatusForUserTimeline() =
 			getRateLimiterStatusForFamily("statuses", "/statuses/user_timeline")
 
 	private fun getRateLimiterStatusForFamily(family: String, endpoint: String): RateLimitStatus {
@@ -91,8 +91,8 @@ open class SimpleTwitterClient(private val restTemplate: RestTemplate) : Twitter
 								null
 							}
 						}
-			} catch (ex: HttpClientErrorException.NotFound) {
-				log.error(ex)
+			} catch (ex: HttpClientErrorException) {
+				log.error("got an exception (of type ${ex.javaClass.name} when processing tweetId ${tweetId}", ex)
 				null
 			}
 

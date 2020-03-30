@@ -101,7 +101,7 @@ class TwitterOrganizer(
 
 	override fun onApplicationEvent(event: ApplicationReadyEvent) {
 		val stepInDays: Int = 10
-		val begin = LocalDate.of(2016, 1, 1)
+		val begin = LocalDate.of(2018, 1, 1)
 		forEachNDaysBetween(begin, LocalDate.now(), stepInDays) { currentDate ->
 			arrayOf("trump", "coronavirus", "twis").forEach { tag ->
 				enrichBookmarksFor(tag, dateFromLocalDate(currentDate), dateFromLocalDate(currentDate.plusDays(stepInDays.toLong())))
