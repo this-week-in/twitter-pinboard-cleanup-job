@@ -9,18 +9,20 @@ on:
   pull_request:
     branches: [ master ]
 
-env:
-  TWITTER_TWI_CLIENT_KEY: ${{ secrets.TWITTER_TWI_CLIENT_KEY }}
-  TWITTER_TWI_CLIENT_KEY_SECRET: ${{ secrets.TWITTER_TWI_CLIENT_KEY_SECRET }}
-  PINBOARD_TOKEN: ${{ secrets.PINBOARD_TOKEN }}
-  CF_USER: ${{ secrets.CF_USER }}
-  CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
-  CF_SPACE: ${{ secrets.CF_SPACE }}
-  CF_API: ${{ secrets.CF_API }}
-  CF_ORG: ${{ secrets.CF_ORG  }}
-  PATH: $PATH:$HOME/bin
 
 jobs:
+
+  env:
+    TWITTER_TWI_CLIENT_KEY: ${{ secrets.TWITTER_TWI_CLIENT_KEY }}
+    TWITTER_TWI_CLIENT_KEY_SECRET: ${{ secrets.TWITTER_TWI_CLIENT_KEY_SECRET }}
+    PINBOARD_TOKEN: ${{ secrets.PINBOARD_TOKEN }}
+    CF_USER: ${{ secrets.CF_USER }}
+    CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
+    CF_SPACE: ${{ secrets.CF_SPACE }}
+    CF_API: ${{ secrets.CF_API }}
+    CF_ORG: ${{ secrets.CF_ORG  }}
+    PATH: $PATH:$HOME/bin
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -37,26 +39,26 @@ jobs:
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-m2
-#          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          #          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
-#        env:
-#          TWITTER_TWI_CLIENT_KEY: ${{ secrets.TWITTER_TWI_CLIENT_KEY }}
-#          TWITTER_TWI_CLIENT_KEY_SECRET: ${{ secrets.TWITTER_TWI_CLIENT_KEY_SECRET }}
-#          PINBOARD_TOKEN: ${{ secrets.PINBOARD_TOKEN }}
+      #        env:
+      #          TWITTER_TWI_CLIENT_KEY: ${{ secrets.TWITTER_TWI_CLIENT_KEY }}
+      #          TWITTER_TWI_CLIENT_KEY_SECRET: ${{ secrets.TWITTER_TWI_CLIENT_KEY_SECRET }}
+      #          PINBOARD_TOKEN: ${{ secrets.PINBOARD_TOKEN }}
 
       - name: Deploy to Cloud Foundry
-#        env:
-#          TWITTER_TWI_CLIENT_KEY: ${{ secrets.TWITTER_TWI_CLIENT_KEY }}
-#          TWITTER_TWI_CLIENT_KEY_SECRET: ${{ secrets.TWITTER_TWI_CLIENT_KEY_SECRET }}
-#          PINBOARD_TOKEN: ${{ secrets.PINBOARD_TOKEN }}
-#          CF_USER: ${{ secrets.CF_USER }}
-#          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
-#          CF_SPACE: ${{ secrets.CF_SPACE }}
-#          CF_API: ${{ secrets.CF_API }}
-#          CF_ORG: ${{ secrets.CF_ORG  }}
+        #        env:
+        #          TWITTER_TWI_CLIENT_KEY: ${{ secrets.TWITTER_TWI_CLIENT_KEY }}
+        #          TWITTER_TWI_CLIENT_KEY_SECRET: ${{ secrets.TWITTER_TWI_CLIENT_KEY_SECRET }}
+        #          PINBOARD_TOKEN: ${{ secrets.PINBOARD_TOKEN }}
+        #          CF_USER: ${{ secrets.CF_USER }}
+        #          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
+        #          CF_SPACE: ${{ secrets.CF_SPACE }}
+        #          CF_API: ${{ secrets.CF_API }}
+        #          CF_ORG: ${{ secrets.CF_ORG  }}
         run: |
           pwd
           echo $GITHUB_WORKSPACE
