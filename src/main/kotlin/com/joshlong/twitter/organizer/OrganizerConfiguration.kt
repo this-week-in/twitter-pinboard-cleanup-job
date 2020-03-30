@@ -59,6 +59,7 @@ class TwitterOrganizer(
 	override fun onApplicationEvent(event: ApplicationReadyEvent) {
 		val tweetKey = "tweet"
 		val bookmarkKey = "bookmark"
+		//todo have some way for random services to contribute types of tweets to look after (eg, which tags should we look for)
 		//todo have something that goes back for 2 years in a while loop
 		val now = Date()
 		val then = subtractDaysFrom(14, now)
