@@ -1,5 +1,6 @@
 package com.joshlong.twitter.organizer
 
+import com.joshlong.twitter.TagResolver
 import com.joshlong.twitter.TwitterPinboardOrganizerProperties
 import com.joshlong.twitter.api.BearerTokenInterceptor
 import com.joshlong.twitter.api.SimpleTwitterClient
@@ -8,7 +9,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import pinboard.Bookmark
@@ -41,7 +41,7 @@ class OrganizerConfiguration(private val twitterOrganizerProperties: TwitterPinb
 
 @Component
 class TwitterOrganizer(
-		private val jdbcTemplate: JdbcTemplate,
+		private val tagResolver: TagResolver,
 		private val twitterClient: TwitterClient,
 		private val pinboardClient: PinboardClient) :
 		ApplicationListener<ApplicationReadyEvent> {
@@ -104,9 +104,8 @@ class TwitterOrganizer(
 	override fun onApplicationEvent(event: ApplicationReadyEvent) {
 		val stepInDays: Int = 10
 		val begin = LocalDate.of(2018, 1, 1)
-		val tags: List<String> = this.jdbcTemplate.query("select * from twitter_pinboard_tags") { rs, _ -> rs.getString("tag_name") }
 		forEachNDaysBetween(begin, LocalDate.now(), stepInDays) { currentDate ->
-			tags.forEach { tag ->
+			tagResolver.loadTags().forEach { tag ->
 				enrichBookmarksFor(tag, dateFromLocalDate(currentDate), dateFromLocalDate(currentDate.plusDays(stepInDays.toLong())))
 			}
 		}
