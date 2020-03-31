@@ -17,7 +17,6 @@ on:
     CF_SPACE: ${{ secrets.CF_SPACE }}
     CF_API: ${{ secrets.CF_API }}
     CF_ORG: ${{ secrets.CF_ORG  }}
-    PATH: ${{ env.PATH }}:${{ env.HOME}}/bin
 
 jobs:
 
