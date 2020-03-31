@@ -21,7 +21,6 @@ on:
   pull_request:
     branches: [ master ]
 
-
 jobs:
 
   build:
@@ -47,8 +46,6 @@ jobs:
 
       - name: Deploy to Cloud Foundry
         run: |
-          pwd
-          echo $GITHUB_WORKSPACE
           cd $GITHUB_WORKSPACE
           ./deploy/cf.sh
           ./deploy/deploy.sh
