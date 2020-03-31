@@ -8,6 +8,10 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+
+
+jobs:
+
   env:
     TWITTER_TWI_CLIENT_KEY: ${{ secrets.TWITTER_TWI_CLIENT_KEY }}
     TWITTER_TWI_CLIENT_KEY_SECRET: ${{ secrets.TWITTER_TWI_CLIENT_KEY_SECRET }}
@@ -17,10 +21,6 @@ on:
     CF_SPACE: ${{ secrets.CF_SPACE }}
     CF_API: ${{ secrets.CF_API }}
     CF_ORG: ${{ secrets.CF_ORG  }}
-
-jobs:
-
-
 
   build:
     runs-on: ubuntu-latest
