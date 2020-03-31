@@ -12,6 +12,8 @@ env:
   CF_SPACE: ${{ secrets.CF_SPACE }}
   CF_API: ${{ secrets.CF_API }}
   CF_ORG: ${{ secrets.CF_ORG  }}
+  ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME  }}
+  ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD  }}
 
 on:
   push:
@@ -41,27 +43,9 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
-#        env:
-#          TWITTER_TWI_CLIENT_KEY: ${{ secrets.TWITTER_TWI_CLIENT_KEY }}
-#          TWITTER_TWI_CLIENT_KEY_SECRET: ${{ secrets.TWITTER_TWI_CLIENT_KEY_SECRET }}
-#          PINBOARD_TOKEN: ${{ secrets.PINBOARD_TOKEN }}
-#          CF_USER: ${{ secrets.CF_USER }}
-#          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
-#          CF_SPACE: ${{ secrets.CF_SPACE }}
-#          CF_API: ${{ secrets.CF_API }}
-#          CF_ORG: ${{ secrets.CF_ORG  }}
+        run: mvn -B deploy --file pom.xml
 
       - name: Deploy to Cloud Foundry
-#        env:
-#          TWITTER_TWI_CLIENT_KEY: ${{ secrets.TWITTER_TWI_CLIENT_KEY }}
-#          TWITTER_TWI_CLIENT_KEY_SECRET: ${{ secrets.TWITTER_TWI_CLIENT_KEY_SECRET }}
-#          PINBOARD_TOKEN: ${{ secrets.PINBOARD_TOKEN }}
-#          CF_USER: ${{ secrets.CF_USER }}
-#          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
-#          CF_SPACE: ${{ secrets.CF_SPACE }}
-#          CF_API: ${{ secrets.CF_API }}
-#          CF_ORG: ${{ secrets.CF_ORG  }}
         run: |
           pwd
           echo $GITHUB_WORKSPACE
