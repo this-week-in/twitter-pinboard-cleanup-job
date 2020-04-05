@@ -186,7 +186,7 @@
                 https://cloudnativejava.jfrog.io/cloudnativejava/plugins-snapshot
             </url>
         </pluginRepository>
-    </pluginRepositories>
+    </pluginRepositories> 
 
-   
+    
 </project>
