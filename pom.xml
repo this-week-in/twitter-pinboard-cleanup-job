@@ -56,6 +56,11 @@
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>com.joshlong</groupId>
+            <artifactId>twitter-client</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -146,8 +151,8 @@
             </plugin>
         </plugins>
     </build>
-   
- <repositories>
+
+    <repositories>
         <repository>
             <snapshots>
                 <enabled>false</enabled>
@@ -186,7 +191,7 @@
                 https://cloudnativejava.jfrog.io/cloudnativejava/plugins-snapshot
             </url>
         </pluginRepository>
-    </pluginRepositories> 
+    </pluginRepositories>
 
 
 </project>
