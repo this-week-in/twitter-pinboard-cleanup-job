@@ -34,15 +34,15 @@ jobs:
         with:
           java-version: 13
 
-      - name: Cache Maven packages
+      - name: Build with Maven
+        run: mvn -B deploy --file pom.xml
+
+      - name: Cache Maven packages After
         uses: actions/cache@v1
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-m2
           restore-keys: ${{ runner.os }}-m2
-
-      - name: Build with Maven
-        run: mvn -B deploy --file pom.xml
 
       - name: Deploy to Cloud Foundry
         run: |
