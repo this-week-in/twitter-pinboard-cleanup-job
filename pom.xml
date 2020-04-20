@@ -51,8 +51,10 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.joshlong</groupId>
-            <artifactId>pinboard-client</artifactId>
+            <groupId>com.joshlong.pinboard</groupId>
+            <artifactId> 
+               blocking-client
+            </artifactId>
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
