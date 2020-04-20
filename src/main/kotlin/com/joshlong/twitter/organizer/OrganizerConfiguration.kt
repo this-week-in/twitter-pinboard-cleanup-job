@@ -87,7 +87,7 @@ class TwitterOrganizer(
 	private fun dateFromLocalDate(ld: LocalDate) = Date.from(ld.atStartOfDay(ZoneId.systemDefault()).toInstant())
 
 	override fun onApplicationEvent(event: ApplicationReadyEvent) {
-		val stepInDays: Int = 10
+		val stepInDays = 10
 		val begin = LocalDate.of(2018, 1, 1)
 		forEachNDaysBetween(begin, LocalDate.now(), stepInDays) { currentDate ->
 			tagResolver.loadTags().forEach { tag ->
